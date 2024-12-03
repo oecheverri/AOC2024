@@ -28,7 +28,7 @@ struct Day02Tests {
         #expect(!challenge.determineSafety([8, 6, 4, 4, 1]))
         #expect(!challenge.determineSafety([82, 81, 79, 77, 72, 73]))
     }
-    
+
     @Test("Determines safe")
     func testDeterminesSafe() {
         let challenge = Day02(data: "")

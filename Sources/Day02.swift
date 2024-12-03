@@ -3,14 +3,14 @@ struct Day02: AdventDay {
   var data: String
 
     let _entities: [[Int]]
-    
+
     var entities: [[Int]] {
         _entities
   }
 
     init(data: String) {
         self.data = data.trimmingCharacters(in: .newlines)
-        
+
         _entities = data
             .components(separatedBy: "\n")
             .map {
@@ -22,7 +22,7 @@ struct Day02: AdventDay {
     func resolve(_ report: [Int]) -> Bool {
 
         var attemptedIndex = 0
-        while(attemptedIndex < report.count) {
+        while attemptedIndex < report.count {
             var dampenedReport = report
             dampenedReport.remove(at: attemptedIndex)
             if determineSafety(dampenedReport) { return true }
@@ -56,14 +56,12 @@ struct Day02: AdventDay {
 
         return true
     }
-    
-    
-    
+
   func part1() -> Any {
-      entities.map{self.determineSafety($0)}.count(where: \.self)
+      entities.map {self.determineSafety($0)}.count(where: \.self)
   }
 
   func part2() -> Any {
-      entities.map{self.determineSafety($0, dampened: true)}.count(where: \.self)
+      entities.map {self.determineSafety($0, dampened: true)}.count(where: \.self)
   }
 }

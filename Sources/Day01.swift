@@ -3,25 +3,25 @@ struct Day01: AdventDay {
   var data: String
 
     let _entities: [[Int]]
-    
+
     var entities: [[Int]] {
         _entities
   }
 
     init(data: String) {
         self.data = data
-        
+
         let parts = data.components(separatedBy: "\n")
         var left = [Int?]()
         var right = [Int?]()
 
         parts.forEach {
             let ints = $0.components(separatedBy: "   ")
-            
+
             guard ints.count == 2 else { return }
             left.append(Int(ints[0]))
             right.append(Int(ints[1]))
-            
+
         }
         _entities = [left.compactMap(\.self), right.compactMap(\.self)]
     }
@@ -33,7 +33,7 @@ struct Day01: AdventDay {
       for i in left.indices {
           result+=abs(left[i]-right[i])
       }
-      
+
       return result
   }
 
