@@ -21,14 +21,13 @@ struct Day03: AdventDay {
 
     func part1() -> Any {
         let ranges = data.ranges(of: /mul\([0-9]{1,3},[0-9]{1,3}\)/)
-        var entities = [(Int, Int)]()
-        for range in ranges {
-            let str = data[(data.index(range.lowerBound, offsetBy: 4))...(data.index(range.upperBound, offsetBy: -2))]
-            let nums = str.components(separatedBy: ",")
-            entities.append((Int(nums[0])!, Int(nums[1])!))
+        return ranges.map {
+            data[(data.index($0.lowerBound, offsetBy: 4))...(data.index($0.upperBound, offsetBy: -2))]
+                .components(separatedBy: ",")
+        }.map {
+            (Int($0[0])!, Int($0[1])!)
         }
-
-        return entities.reduce(0) {
+        .reduce(0) {
             $0 + $1.0 * $1.1
         }
     }
