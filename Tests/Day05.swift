@@ -39,12 +39,28 @@ struct Day05Tests {
 
     @Test func validatesReports() throws {
         let challenge = Day05(data: testData)
-        let rules = challenge.makeRules()
+        let rules = challenge.rules
 
         #expect(challenge.isValid(update: [75, 47, 61, 53, 29], rules: rules))
         #expect(challenge.isValid(update: [97, 61, 53, 29, 13], rules: rules))
         #expect(challenge.isValid(update: [75, 29, 13], rules: rules))
 
+    }
+    
+    @Test func repairsInValidReports() throws {
+        let challenge = Day05(data: testData)
+        let rules = challenge.rules
+        var badReports = [ [75, 97, 47, 61, 53],
+                           [61, 13, 29],
+                           [97, 13, 75, 29, 47] ]
+        #expect(challenge.repairIfInvalid(update: &badReports[0], rules: rules) == false)
+        #expect(badReports[0] == [97, 75, 47, 61, 53])
+        #expect(challenge.repairIfInvalid(update: &badReports[1], rules: rules) == false)
+        #expect(badReports[1] == [61, 29, 13])
+        #expect(challenge.repairIfInvalid(update: &badReports[2], rules: rules) == false)
+        #expect(badReports[2] == [97, 75, 47, 29, 13])
+        
+        
     }
 
     @Test func testPart1() async throws {
@@ -54,6 +70,6 @@ struct Day05Tests {
 
     @Test func testPart2() async throws {
         let challenge = Day05(data: testData)
-        #expect(String(describing: challenge.part2()) == "32000")
+        #expect(String(describing: challenge.part2()) == "123")
     }
 }
