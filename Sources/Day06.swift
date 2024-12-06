@@ -1,12 +1,16 @@
-import Algorithms
+
+struct Point: Equatable, Hashable {
+    let x: Int
+    let y: Int
+}
 
 struct Day06: AdventDay {
     
     var data: String
 
     let lab: [[Character]]
-    var startingPosition: (x: Int, y: Int) = (x: 0, y: 0)
-    
+    var startingPosition = Point(x: 0, y: 0)
+
     init(data: String) {
         self.data = data
         self.lab = data.components(separatedBy: "\n\n")[0]
@@ -19,7 +23,7 @@ struct Day06: AdventDay {
         for y in 0..<lab.count {
             for (x, char) in lab[y].enumerated() {
                 if Direction(rawValue: char) != nil {
-                    self.startingPosition = (x: x, y: y)
+                    self.startingPosition = Point(x: x, y: y)
                     break
                 }
             }
@@ -46,7 +50,7 @@ struct Day06: AdventDay {
         }
     }
     
-    func isInBounds(_ position: (x: Int, y: Int)) -> Bool {
+    func isInBounds(_ position: Point) -> Bool {
         lab.indices.contains(position.y) && lab[position.y].indices.contains(position.x)
     }
     
@@ -56,19 +60,19 @@ struct Day06: AdventDay {
             return 0
         }
         var currentPosition = self.startingPosition
-        var visited: Set<[Int]> = [[currentPosition.y, currentPosition.x]]
-        
+        var visited: Set<Point> = [currentPosition]
+
         while true {
-            let nextPos: (x: Int, y: Int)
+            let nextPos: Point
             switch currentDirection {
             case .up:
-                nextPos = (x: currentPosition.x, y: currentPosition.y - 1)
+                nextPos = Point(x: currentPosition.x, y: currentPosition.y - 1)
             case .down:
-                nextPos = (x: currentPosition.x, y: currentPosition.y + 1)
+                nextPos = Point(x: currentPosition.x, y: currentPosition.y + 1)
             case .left:
-                nextPos = (x: currentPosition.x - 1, y: currentPosition.y)
+                nextPos = Point(x: currentPosition.x - 1, y: currentPosition.y)
             case .right:
-                nextPos = (x: currentPosition.x + 1, y: currentPosition.y)
+                nextPos = Point(x: currentPosition.x + 1, y: currentPosition.y)
             }
             
             guard isInBounds(nextPos) else { return visited.count }
@@ -77,7 +81,7 @@ struct Day06: AdventDay {
                 currentDirection = currentDirection.turnRight
             } else {
                 currentPosition = nextPos
-                visited.insert([currentPosition.y, currentPosition.x])
+                visited.insert(currentPosition)
             }
         }
         
