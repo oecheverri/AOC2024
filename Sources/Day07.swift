@@ -1,20 +1,98 @@
+import Algorithms
+struct Problem: Sendable {
+    static let operands: [Operation] = [
+        { $0 + $1},
+        { $0 * $1},
+    ]
+    
+    let solution: Int
+    let values: [Int]
+    let operations: [[Operation]]
+     
+    init(solution: Int, values: [Int]) {
+        self.solution = solution
+        self.values = values
+        self.operations = Self.operands.combinations(elementCount: values.count - 1)
+    }
+    
+    var isSolvable: Bool {
+        for operationList in operations {
+            
+            var current = values[0]
+            for i in 0..<operationList.count {
+                current = operationList[i](current, values[i + 1])
+            }
+            if current == solution {
+                return true
+            }
+        }
+        return false
+    }
+}
+
+nonisolated(unsafe) var operandMemo: [Int: [[Operation]]] = [:]
+
+typealias Operation = @Sendable (Int, Int) -> Int
+extension Array where Element == Operation {
+    
+    func combinations(elementCount: Int) -> [[Element]] {
+        if let memoized = operandMemo[elementCount] {
+            return memoized
+        }
+        if elementCount == 0 {
+            return []
+        }
+        if elementCount == 1 {
+            return self.map {
+                [$0]
+            }
+        }
+        
+        let partial = combinations(elementCount: elementCount - 1)
+        let result = self.flatMap { outer in
+            partial.map {
+                var inner = $0
+                inner.append(outer)
+                return inner
+            }
+        }
+        operandMemo[elementCount] = result
+        return result
+    }
+
+}
+
 struct Day07: AdventDay {
 
     var data: String
+    
 
-    var entities: [[Int]] {
-            data.components(separatedBy: "\n\n").map {
-            $0.components(separatedBy: "\n").compactMap { Int($0) }
-        }
+    let problems: [Problem]
+    var entities: [Problem] {
+        return problems
     }
 
+    
+    
+    init(data: String) {
+        self.data = data
+        problems = data.components(separatedBy: "\n")
+            .compactMap { $0.isEmpty ? nil : $0.components(separatedBy: ":") }
+            .map {
+                Problem(
+                    solution: Int($0[0])!,
+                    values: $0[1].components(separatedBy: " ").compactMap(Int.init)
+                )
+            }
+        
+    }
 
     func part1() -> Any {
-        entities.first?.reduce(0, +) ?? 0
+        return entities.filter(\.isSolvable).reduce(0) { $0 + $1.solution }
     }
 
 
     func part2() -> Any {
-        entities.map { $0.max() ?? 0 }.reduce(0, +)
+        return 0
     }
 }
