@@ -147,14 +147,17 @@ struct Day06: AdventDay {
                 continue
             }
             
-            if shouldPlaceObstacles {
+            if shouldPlaceObstacles,
+               nextPosition != initialStartPosition,
+               !placedObstacles.contains(nextPosition)
+                {
                 var modifiedLab = lab
                 modifiedLab[nextPosition] = "O"
                 do {
                     _ = try walk(
                         lab: modifiedLab,
                         starting: initialStartPosition,
-                        startingDirection: .up,
+                        startingDirection: .init(rawValue: modifiedLab[initialStartPosition])!,
                         shouldPlaceObstacles: false
                     )
                 } catch {
@@ -182,50 +185,6 @@ struct Day06: AdventDay {
         let result = try! walk(lab: lab, starting: initialStartPosition, startingDirection: currentDirection, shouldPlaceObstacles: true)
         return result
     }
-
-    func printLab(lab: [[Character]], _ visited: [Point: Set<Direction>], placedObstacles: Set<Point>, currentPosition: Point, currentDirection: Direction) {
-        
-        var logger = LogDestination()
-        
-        for (rIndex, row) in lab.enumerated() {
-            for (cIndex, cell) in row.enumerated() {
-                let point = Point(x: cIndex, y: rIndex)
-                if point == currentPosition {
-                    print(currentDirection.rawValue, terminator: ",", to: &logger)
-                } else if placedObstacles.contains(point) {
-                    print("O", terminator: ",", to: &logger)
-                } else if let directions = visited[point] {
-                    print(getTravelPath(directions: .init(directions)), terminator: ",", to: &logger)
-                } else {
-                    print(cell, terminator: ",", to: &logger)
-                }
-            }
-            print("", to: &logger)
-        }
-    }
-
-    func getTravelPath(directions: [Direction]) -> String {
-        directions.reduce("") {
-            switch $1 {
-            case .left, .right:
-                if $0 == "" {
-                    return "-"
-                } else
-                if $0 == "|" {
-                    return "+"
-                }
-            case .down, .up:
-                if $0 == "" {
-                    return "|"
-                } else
-                if $0 == "-" {
-                    return "+"
-                }
-            }
-            return $0
-        }
-    }
-
 }
 
 final class LogDestination: TextOutputStream {
