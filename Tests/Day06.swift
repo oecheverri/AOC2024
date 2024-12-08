@@ -28,7 +28,7 @@ struct Day06Tests {
         let challenge = Day06(data: testData)
         #expect(String(describing: challenge.part2()) == "6")
     }
-    
+
     @Test(
         "Test can place obstacles"
         , arguments: zip([
@@ -48,13 +48,13 @@ struct Day06Tests {
             .down
         ])
     )
-    
+
     func testWalking(startingPosition: Point, startingDirection: Direction) throws {
         let challenge = Day06(data: testData)
         let insertedObstacle = startingPosition.nextPoint(facing: startingDirection)
         var modified = challenge.entities
         modified[insertedObstacle.y][insertedObstacle.x] = "#"
-        
+
         #expect(
             throws: MovementError.Stuck(startingPosition)
         ) {
@@ -65,7 +65,6 @@ struct Day06Tests {
                 shouldPlaceObstacles: false
             )
         }
-        
-        
+
     }
 }

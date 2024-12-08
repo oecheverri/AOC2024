@@ -3,7 +3,7 @@ import Testing
 @testable import AdventOfCode
 
 struct Day07Tests {
-    
+
     let testData = """
                 190: 10 19
                 3267: 81 40 27

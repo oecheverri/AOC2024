@@ -3,23 +3,18 @@ import Algorithms
 struct Problem: Sendable {
     static let operands: [Operation] = [
         { $0 + $1},
-        { $0 * $1},
+        { $0 * $1}
     ]
-    
+
     let solution: Int
     let values: [Int]
-     
-    init(solution: Int, values: [Int]) {
-        self.solution = solution
-        self.values = values
-    }
-    
+
     func isSolvable(using operands: [Operation]) -> Bool {
-        
+
         let operations = operands.combinations(elementCount: values.count - 1)
-        
+
         for operationList in operations {
-            
+
             var current = values[0]
             for i in 0..<operationList.count {
                 current = operationList[i](current, values[i + 1])
@@ -36,7 +31,7 @@ nonisolated(unsafe) var operandMemo: [Int: [[Operation]]] = [:]
 
 typealias Operation = @Sendable (Int, Int) -> Int
 extension Array where Element == Operation {
-    
+
     func combinations(elementCount: Int) -> [[Element]] {
         if let memoized = operandMemo[elementCount] {
             return memoized
@@ -49,7 +44,7 @@ extension Array where Element == Operation {
                 [$0]
             }
         }
-        
+
         let partial = combinations(elementCount: elementCount - 1)
         let result = self.flatMap { outer in
             partial.map {
@@ -67,15 +62,12 @@ extension Array where Element == Operation {
 struct Day07: AdventDay {
 
     var data: String
-    
 
     let problems: [Problem]
     var entities: [Problem] {
         return problems
     }
 
-    
-    
     init(data: String) {
         self.data = data
         problems = data.components(separatedBy: "\n")
@@ -91,9 +83,8 @@ struct Day07: AdventDay {
     func part1() -> Any {
         operandMemo.removeAll(keepingCapacity: true)
         let operands: [Operation] = [{ $0 + $1}, { $0 * $1}]
-        return entities.filter{$0.isSolvable(using: operands)}.reduce(0) { $0 + $1.solution }
+        return entities.filter {$0.isSolvable(using: operands)}.reduce(0) { $0 + $1.solution }
     }
-
 
     func part2() -> Any {
         operandMemo.removeAll(keepingCapacity: true)
@@ -101,9 +92,9 @@ struct Day07: AdventDay {
             { $0 + $1},
             { $0 * $1},
             {
-                Int(String($0) + String ($1))!
+                Int(String($0) + String($1))!
             }
         ]
-        return entities.filter{$0.isSolvable(using: operands)}.reduce(0) { $0 + $1.solution }
+        return entities.filter {$0.isSolvable(using: operands)}.reduce(0) { $0 + $1.solution }
     }
 }

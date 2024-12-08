@@ -46,7 +46,7 @@ struct Day05Tests {
         #expect(challenge.isValid(update: [75, 29, 13], rules: rules))
 
     }
-    
+
     @Test func repairsInValidReports() throws {
         let challenge = Day05(data: testData)
         let rules = challenge.rules
@@ -59,8 +59,7 @@ struct Day05Tests {
         #expect(badReports[1] == [61, 29, 13])
         #expect(challenge.repairIfInvalid(update: &badReports[2], rules: rules) == false)
         #expect(badReports[2] == [97, 75, 47, 29, 13])
-        
-        
+
     }
 
     @Test func testPart1() async throws {

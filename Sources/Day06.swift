@@ -4,7 +4,7 @@ enum Direction: Character {
     case down = "v"
     case left = "<"
     case right = ">"
-    
+
     var turnRight: Direction {
         switch self {
         case .up: return .right
@@ -27,12 +27,12 @@ enum Direction: Character {
 struct Point: Equatable, Hashable {
     let x: Int
     let y: Int
-    
+
     init(_ x: Int, _ y: Int) {
         self.x = x
         self.y = y
     }
-    
+
     init (x: Int, y: Int) {
         self.x = x
         self.y = y
@@ -52,7 +52,6 @@ struct Point: Equatable, Hashable {
     }
 }
 
-
 enum MovementError: Error, Equatable {
     case Stuck(Point)
 }
@@ -68,10 +67,8 @@ extension Array where Element == [Character] {
     }
 }
 
-
-
 struct Day06: AdventDay {
-    
+
     var data: String
 
     let lab: [[Character]]
@@ -85,7 +82,7 @@ struct Day06: AdventDay {
             .filter {
                 !$0.isEmpty
             }
-        
+
         for y in 0..<lab.count {
             for (x, char) in lab[y].enumerated() {
                 if Direction(rawValue: char) != nil {
@@ -95,17 +92,17 @@ struct Day06: AdventDay {
             }
         }
     }
-    
+
     var entities: [[Character]] {
         lab
     }
-    
+
     func isInBounds(_ position: Point) -> Bool {
         lab.indices.contains(position.y) && lab[position.y].indices.contains(position.x)
     }
-    
+
     func part1() -> Any {
-        
+
         guard var currentDirection = Direction(rawValue: lab[initialStartPosition.y][initialStartPosition.x]) else {
             return 0
         }
@@ -113,7 +110,7 @@ struct Day06: AdventDay {
         var nextPosition = currentPosition.nextPoint(facing: currentDirection)
         var visited: Set<Point> = [currentPosition]
         while isInBounds(nextPosition) {
-            
+
             guard lab[nextPosition] != "#", lab[nextPosition] != "O" else {
                 currentDirection = currentDirection.turnRight
                 nextPosition = currentPosition.nextPoint(facing: currentDirection)
@@ -123,7 +120,7 @@ struct Day06: AdventDay {
             nextPosition = currentPosition.nextPoint(facing: currentDirection)
             visited.insert(currentPosition)
         }
-        
+
         return visited.count
     }
 
@@ -140,17 +137,16 @@ struct Day06: AdventDay {
         var nextPosition = currentPosition.nextPoint(facing: currentDirection)
 
         while isInBounds(nextPosition) {
-            
+
             guard lab[nextPosition] != "#", lab[nextPosition] != "O" else {
                 currentDirection = currentDirection.turnRight
                 nextPosition = currentPosition.nextPoint(facing: currentDirection)
                 continue
             }
-            
+
             if shouldPlaceObstacles,
                nextPosition != initialStartPosition,
-               !placedObstacles.contains(nextPosition)
-                {
+               !placedObstacles.contains(nextPosition) {
                 var modifiedLab = lab
                 modifiedLab[nextPosition] = "O"
                 do {
@@ -164,12 +160,12 @@ struct Day06: AdventDay {
                     placedObstacles.insert(nextPosition)
                 }
             }
-            
+
             if let arrivalDirections = visited[nextPosition],
                 arrivalDirections.contains(currentDirection) {
                 throw MovementError.Stuck(currentPosition)
             }
-            
+
             visited[nextPosition, default: []].insert(currentDirection)
             currentPosition = nextPosition
             nextPosition = currentPosition.nextPoint(facing: currentDirection)
@@ -177,7 +173,7 @@ struct Day06: AdventDay {
 
         return placedObstacles.count
     }
-    
+
     func part2() -> Any {
         guard let currentDirection = Direction(rawValue: lab[initialStartPosition.y][initialStartPosition.x]) else {
             return 0
@@ -205,5 +201,3 @@ final class LogDestination: TextOutputStream {
     }
   }
 }
-
-

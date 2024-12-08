@@ -33,7 +33,7 @@ struct Day05: AdventDay {
         }
         return true
     }
-    
+
     @discardableResult
     func repairIfInvalid(update: inout [Int], rules: [Int: [Int]]) -> Bool {
         var seen = Set<Int>()
@@ -80,7 +80,7 @@ struct Day05: AdventDay {
                 repaired.remove(at: i)
             }
         }
-        
+
         return repaired.reduce(0) {
             $0 + $1[$1.count/2]
         }
