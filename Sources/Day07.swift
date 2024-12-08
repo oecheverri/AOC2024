@@ -1,4 +1,4 @@
-struct Day00: AdventDay {
+struct Day07: AdventDay {
 
     var data: String
 
