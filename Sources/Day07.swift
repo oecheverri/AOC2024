@@ -1,4 +1,5 @@
 import Algorithms
+
 struct Problem: Sendable {
     static let operands: [Operation] = [
         { $0 + $1},
@@ -7,15 +8,16 @@ struct Problem: Sendable {
     
     let solution: Int
     let values: [Int]
-    let operations: [[Operation]]
      
     init(solution: Int, values: [Int]) {
         self.solution = solution
         self.values = values
-        self.operations = Self.operands.combinations(elementCount: values.count - 1)
     }
     
-    var isSolvable: Bool {
+    func isSolvable(using operands: [Operation]) -> Bool {
+        
+        let operations = operands.combinations(elementCount: values.count - 1)
+        
         for operationList in operations {
             
             var current = values[0]
@@ -84,15 +86,24 @@ struct Day07: AdventDay {
                     values: $0[1].components(separatedBy: " ").compactMap(Int.init)
                 )
             }
-        
     }
 
     func part1() -> Any {
-        return entities.filter(\.isSolvable).reduce(0) { $0 + $1.solution }
+        operandMemo.removeAll(keepingCapacity: true)
+        let operands: [Operation] = [{ $0 + $1}, { $0 * $1}]
+        return entities.filter{$0.isSolvable(using: operands)}.reduce(0) { $0 + $1.solution }
     }
 
 
     func part2() -> Any {
-        return 0
+        operandMemo.removeAll(keepingCapacity: true)
+        let operands: [Operation] = [
+            { $0 + $1},
+            { $0 * $1},
+            {
+                Int(String($0) + String ($1))!
+            }
+        ]
+        return entities.filter{$0.isSolvable(using: operands)}.reduce(0) { $0 + $1.solution }
     }
 }
