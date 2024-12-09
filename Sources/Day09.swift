@@ -147,9 +147,10 @@ struct Day09: AdventDay {
                     left+=1
                     continue
                 }
-                blocks.remove(at: left)
-                blocks.insert(contentsOf: split, at: left)
-                right+=split.count-1
+                if split.count > 1 {
+                    blocks.remove(at: left)
+                    blocks.insert(contentsOf: split, at: left)
+                }
                 blocks.swapAt(left, right)
                 break
             }
