@@ -52,16 +52,16 @@ struct Day08: AdventDay {
         guard pointA != pointB else { return [] }
         let rowDiff = pointA.y - pointB.y
         let columnDiff = pointA.x - pointB.x
-        var points = Set([pointA, pointB])
+        var points = Set<Point>()
 
-        let pointA = Point(pointA.x - 2 * columnDiff, pointA.y - 2 * rowDiff)
-        if isInBounds(pointA) {
-            points.insert(pointA)
+        let point1 = Point(pointA.x - 2 * columnDiff, pointA.y - 2 * rowDiff)
+        if isInBounds(point1) {
+            points.insert(point1)
         }
 
-        let pointB = Point(pointA.x + columnDiff, pointA.y + rowDiff)
-        if isInBounds(pointB) {
-            points.insert(pointB)
+        let point2 = Point(pointA.x + columnDiff, pointA.y + rowDiff)
+        if isInBounds(point2) {
+            points.insert(point2)
         }
         return points
     }
@@ -76,7 +76,7 @@ struct Day08: AdventDay {
         var points = Set([pointA, pointB])
         // add upwardly
         var lastPoint = nodes[0]
-        while isInBounds(lastPoint) {
+        while true {
             lastPoint = .init(lastPoint.x - columnDiff, lastPoint.y - rowDiff)
             if isInBounds(lastPoint) {
                 points.insert(lastPoint)
@@ -87,7 +87,7 @@ struct Day08: AdventDay {
 
         // add downwardly
         lastPoint = nodes[1]
-        while isInBounds(lastPoint) {
+        while true {
             lastPoint = .init(lastPoint.x + columnDiff, lastPoint.y + rowDiff)
             if isInBounds(lastPoint) {
                 points.insert(lastPoint)
@@ -113,7 +113,7 @@ struct Day08: AdventDay {
                 }
             }
         }
-        return antinodes.count(where: isInBounds)
+        return antinodes.count
     }
 
     func part1() -> Any {
