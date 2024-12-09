@@ -24,20 +24,7 @@ enum Direction: Character {
     }
 }
 
-struct Point: Equatable, Hashable {
-    let x: Int
-    let y: Int
-
-    init(_ x: Int, _ y: Int) {
-        self.x = x
-        self.y = y
-    }
-
-    init (x: Int, y: Int) {
-        self.x = x
-        self.y = y
-    }
-
+fileprivate extension Point {
     func nextPoint(facing direction: Direction) -> Point {
         switch direction {
         case .up:
