@@ -48,20 +48,20 @@ struct Day08: AdventDay {
         && grid[point.y].indices.contains(point.x)
     }
 
-    func calculateAntiNodalPoints(_ pointA: Point, _ pointB: Point) -> Set<Point> {
+    func calculateAntiNodalPoints(_ pointA: Point, _ pointB: Point) -> [Point] {
         guard pointA != pointB else { return [] }
         let rowDiff = pointA.y - pointB.y
         let columnDiff = pointA.x - pointB.x
-        var points = Set<Point>()
+        var points = [Point]()
 
         let point1 = Point(pointA.x - 2 * columnDiff, pointA.y - 2 * rowDiff)
         if isInBounds(point1) {
-            points.insert(point1)
+            points.append(point1)
         }
 
         let point2 = Point(pointA.x + columnDiff, pointA.y + rowDiff)
         if isInBounds(point2) {
-            points.insert(point2)
+            points.append(point2)
         }
         return points
     }
@@ -97,8 +97,8 @@ struct Day08: AdventDay {
         }
         return points
     }
-
-    func seekAntinodes(using strategy: (Point, Point) -> Set<Point>) -> Int {
+    
+    func seekAntinodes<T: Collection>(using strategy: (Point, Point) -> T) -> Int where T.Element == Point {
         var antinodes: Set<Point> = []
         for frequency in locations.keys {
             guard let locations = locations[frequency], locations.count > 1 else { continue }
