@@ -140,7 +140,8 @@ struct Day09: AdventDay {
             }
 
             while left < right {
-                guard let empty = blocks[left] as? Empty,
+                guard blocks[left].size >= file.size,
+                    let empty = blocks[left] as? Empty,
                         let split = empty.reserve(blocks: file.size)
                 else {
                     left+=1
