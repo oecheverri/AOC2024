@@ -21,6 +21,7 @@ struct Day08: AdventDay {
 
     var data: String
     var grid: [[Node]]
+    var locations: [Character: [Point]] = [:]
     var entities: [[Node]] {
         grid
     }
@@ -33,6 +34,13 @@ struct Day08: AdventDay {
             .map {
                 $0.map { Node(frequency: $0) }
             }
+
+        for (row, nodes) in grid.enumerated() {
+            for (column, node) in nodes.enumerated() {
+                guard let frequency = node.frequency else { continue }
+                locations[frequency, default: []].append(.init(row, column))
+            }
+        }
     }
 
     func isInBounds(_ point: Point) -> Bool {
@@ -40,31 +48,64 @@ struct Day08: AdventDay {
         && grid[point.y].indices.contains(point.x)
     }
 
-    func calculateAntiNodalPoints(_ pointA: Point, _ pointB: Point) -> [Point] {
+    func calculateAntiNodalPoints(_ pointA: Point, _ pointB: Point) -> Set<Point> {
+        guard pointA != pointB else { return [] }
+        let rowDiff = pointA.y - pointB.y
+        let columnDiff = pointA.x - pointB.x
+        var points = Set([pointA, pointB])
+
+        let pointA = Point(pointA.x - 2 * columnDiff, pointA.y - 2 * rowDiff)
+        if isInBounds(pointA) {
+            points.insert(pointA)
+        }
+
+        let pointB = Point(pointA.x + columnDiff, pointA.y + rowDiff)
+        if isInBounds(pointB) {
+            points.insert(pointB)
+        }
+        return points
+    }
+
+    func calculateHarmonicAntinodalPoints(_ pointA: Point, _ pointB: Point) -> Set<Point> {
         guard pointA != pointB else { return [] }
         let rowDiff = pointA.y - pointB.y
         let columnDiff = pointA.x - pointB.x
 
-        return [.init(pointA.x - 2 * columnDiff, pointA.y - 2 * rowDiff),
-                .init(pointA.x + columnDiff, pointA.y + rowDiff)]
-    }
+        let nodes = [pointA, pointB].sorted()
 
-    func part1() -> Any {
-        var locations = [Character: [Point]]()
-        for (row, nodes) in grid.enumerated() {
-            for (column, node) in nodes.enumerated() {
-                guard let frequency = node.frequency else { continue }
-                locations[frequency, default: []].append(.init(row, column))
+        var points = Set([pointA, pointB])
+        // add upwardly
+        var lastPoint = nodes[0]
+        while isInBounds(lastPoint) {
+            lastPoint = .init(lastPoint.x - columnDiff, lastPoint.y - rowDiff)
+            if isInBounds(lastPoint) {
+                points.insert(lastPoint)
+            } else {
+                break
             }
         }
-        var antinodes: Set<Point> = []
 
+        // add downwardly
+        lastPoint = nodes[1]
+        while isInBounds(lastPoint) {
+            lastPoint = .init(lastPoint.x + columnDiff, lastPoint.y + rowDiff)
+            if isInBounds(lastPoint) {
+                points.insert(lastPoint)
+            } else {
+                break
+            }
+        }
+        return points
+    }
+
+    func seekAntinodes(using strategy: (Point, Point) -> Set<Point>) -> Int {
+        var antinodes: Set<Point> = []
         for frequency in locations.keys {
             guard let locations = locations[frequency], locations.count > 1 else { continue }
             var left = 0
             var right = 1
             while left < locations.count - 1 {
-                antinodes.formUnion(calculateAntiNodalPoints(locations[left], locations[right]))
+                antinodes.formUnion(strategy(locations[left], locations[right]))
                 right+=1
                 if right == locations.count {
                     left += 1
@@ -72,11 +113,14 @@ struct Day08: AdventDay {
                 }
             }
         }
-
         return antinodes.count(where: isInBounds)
     }
 
+    func part1() -> Any {
+        seekAntinodes(using: calculateAntiNodalPoints)
+    }
+
     func part2() -> Any {
-        0
+        seekAntinodes(using: calculateHarmonicAntinodalPoints)
     }
 }

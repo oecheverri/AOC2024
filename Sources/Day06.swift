@@ -24,7 +24,7 @@ enum Direction: Character {
     }
 }
 
-fileprivate extension Point {
+extension Point {
     func nextPoint(facing direction: Direction) -> Point {
         switch direction {
         case .up:
