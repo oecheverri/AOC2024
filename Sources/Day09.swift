@@ -1,43 +1,32 @@
-protocol DiskContent: Sendable, Equatable {
-    var size: Int { get }
-    func merge(with other: any DiskContent) -> Self?
-}
+struct DiskContent: Sendable, Equatable {
+    var size: Int
+    var fileId: Int?
 
-struct File: DiskContent {
-    let size: Int
-    let fileId: Int
-
-    func merge(with other: any DiskContent) -> Self? {
-        guard let otherFile = other as? File, otherFile.fileId == fileId else { return nil }
-        return File(size: size + otherFile.size, fileId: fileId)
-    }
-}
-
-struct Empty: DiskContent {
-    let size: Int
-    func merge(with other: any DiskContent) -> Self? {
-        guard let empty = other as? Empty else { return nil }
-        return .init(size: size + empty.size)
+    func merge(with other: DiskContent) -> Self? {
+        guard other.fileId == fileId else { return nil }
+        return DiskContent(size: size + other.size, fileId: fileId)
     }
 
-    func reserve(blocks: Int) -> [Empty]? {
-        guard blocks <= size else { return nil }
+    func reserve(blocks: Int) -> [DiskContent]? {
+        guard blocks <= size, fileId == nil
+        else { return nil }
         if blocks == size {
             return [self]
         }
         return [.init(size: blocks), .init(size: size-blocks)]
     }
+
 }
 
-extension Array where Element == any DiskContent {
+extension Array where Element == DiskContent {
     func flatten() -> [Int?] {
         var flat = [Int?]()
         for content in self {
-            guard let file = content as? File else {
+            guard let fileId = content.fileId else {
                 flat.append(contentsOf: [Int?](repeating: nil, count: content.size))
                 continue
             }
-            flat.append(contentsOf: [Int](repeating: file.fileId, count: file.size))
+            flat.append(contentsOf: [Int](repeating: fileId, count: content.size))
         }
         return flat
     }
@@ -46,8 +35,8 @@ struct Day09: AdventDay {
 
     var data: String
 
-    var dataArray = [any DiskContent]()
-    var entities: [any DiskContent] {
+    var dataArray = [DiskContent]()
+    var entities: [DiskContent] {
         dataArray
     }
 
@@ -60,14 +49,14 @@ struct Day09: AdventDay {
         while left < self.data.endIndex {
             dataArray.append(
                 contentsOf: Array(
-                    repeating: File(size: 1, fileId: fileId),
+                    repeating: DiskContent(size: 1, fileId: fileId),
                     count: Int(String(data[left]))!
                 )
             )
             if right < self.data.endIndex {
                 dataArray.append(
                     contentsOf: Array(
-                        repeating: Empty(size: 1),
+                        repeating: DiskContent(size: 1),
                         count: Int(String(data[right]))!
                     )
                 )
@@ -82,15 +71,15 @@ struct Day09: AdventDay {
 
     }
 
-    func compactedEntities() -> [any DiskContent] {
+    func compactedEntities() -> [DiskContent] {
         var compactedEntities = entities
         var left = 0
         var right = compactedEntities.count-1
         while left < right {
-            while compactedEntities[left] is File {
+            while compactedEntities[left].fileId != nil {
                 left+=1
             }
-            while compactedEntities[right] is Empty {
+            while compactedEntities[right].fileId == nil {
                 right-=1
             }
             if right < left {
@@ -101,12 +90,12 @@ struct Day09: AdventDay {
         return compactedEntities
     }
 
-    func mergeBlocks() -> [any DiskContent] {
-        var mergedBlocks: [any DiskContent] = []
+    func mergeBlocks() -> [DiskContent] {
+        var mergedBlocks: [DiskContent] = []
 
         var i = 0
         while i < dataArray.count {
-            var merged: any DiskContent = dataArray[i]
+            var merged: DiskContent = dataArray[i]
             while i < dataArray.count-1 {
                 guard let tempMerge = merged.merge(with: dataArray[i+1]) else {
                     break
@@ -123,8 +112,8 @@ struct Day09: AdventDay {
     func part1() -> Any {
         compactedEntities().enumerated()
             .reduce(0) {
-                guard let file = $1.element as? File else { return $0 }
-                return $0 + $1.offset * file.fileId
+                guard let fileId = $1.element.fileId else { return $0 }
+                return $0 + $1.offset * fileId
             }
     }
 
@@ -134,15 +123,16 @@ struct Day09: AdventDay {
         var right = blocks.count - 1
 
         while left < right {
-            guard let file = blocks[right] as? File else {
+            let file = blocks[right]
+            guard file.fileId != nil else {
                 right-=1
                 continue
             }
 
             while left < right {
-                guard blocks[left].size >= file.size,
-                    let empty = blocks[left] as? Empty,
-                        let split = empty.reserve(blocks: file.size)
+                guard blocks[left].fileId == nil,
+                    blocks[left].size >= file.size,
+                        let split = blocks[left].reserve(blocks: file.size)
                 else {
                     left+=1
                     continue
@@ -150,6 +140,7 @@ struct Day09: AdventDay {
                 if split.count > 1 {
                     blocks.remove(at: left)
                     blocks.insert(contentsOf: split, at: left)
+                    right+=split.count-1
                 }
                 blocks.swapAt(left, right)
                 break
@@ -157,10 +148,9 @@ struct Day09: AdventDay {
             left = 0
             right -= 1
         }
-
         return blocks.flatten().enumerated().reduce(0) {
-            guard let val = $1.element else { return $0 }
-            return $0 + $1.offset * val
+            guard let value = $1.element else { return $0 }
+            return $0 + $1.offset * value
         }
 
     }
