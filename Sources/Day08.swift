@@ -97,7 +97,7 @@ struct Day08: AdventDay {
         }
         return points
     }
-    
+
     func seekAntinodes<T: Collection>(using strategy: (Point, Point) -> T) -> Int where T.Element == Point {
         var antinodes: Set<Point> = []
         for frequency in locations.keys {
