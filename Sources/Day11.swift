@@ -17,57 +17,66 @@ struct Day11: AdventDay {
 
     var data: String
 
-    let stones: Stone
-    var entities: Stone {
-        stones
+    var entities: [Int] {
+        [0]
     }
 
     init(data: String) {
         self.data = data
+    }
+    func createStones() -> Stone {
         let numbers = data.components(separatedBy: "\n")[0]
             .components(separatedBy: " ")
             .compactMap(Int.init)
         
-        stones = .init(value: numbers[0])
-        var lastStone = stones
+        let stones: Stone = .init(value: numbers[0])
+        var currentStone = stones
         for i in 1..<numbers.count {
-            lastStone.next = .init(value: numbers[i])
+            currentStone.next = .init(value: numbers[i])
+            currentStone = currentStone.next!
         }
-            
+        return stones
     }
-
+    func countStones(_ stones: Stone) -> Int {
+        var stoneCount = 1
+        var currentStone = stones
+        while currentStone.next != nil {
+            currentStone = currentStone.next!
+            stoneCount += 1
+        }
+        return stoneCount
+    }
     func evolveStones(count: Int) -> Int {
-        var stoneEvoLine = stones.map{ [$0] }
-        for i in 0..<stoneEvoLine.count {
-            for counter in 0..<count {
-                print("\(counter)", terminator: "...")
-                var j = 0
-                while j < stoneEvoLine[i].count {
-                    let stone = stoneEvoLine[i][j]
-                    if stone.value == 0 {
-                        stone.value = 1
-                        j += 1
-                    } else if stone.value.hasEvenDigits {
-                        let str = String(stone.value)
-                        let middleIndex = str.index(str.startIndex, offsetBy: str.count/2)
-                        guard let leftValue = Int(str[str.startIndex..<middleIndex]), let rightValue = Int(str[middleIndex..<str.endIndex]) else { continue }
-                        stone.value = rightValue
-                        stoneEvoLine[i].insert(.init(value: leftValue), at: j)
-                        j+=2
-                    } else {
-                        stone.value *= 2024
-                        j += 1
-                    }
+        let stone = createStones()
+        var stoneCount = countStones(stone)
+        for iteration in 0..<count {
+            print(iteration, terminator: "... ")
+            var nextStone: Stone? = stone
+            while nextStone != nil {
+                let currentStone = nextStone!
+                nextStone = currentStone.next
+                if currentStone.value == 0 {
+                    currentStone.value = 1
+                } else if currentStone.value.hasEvenDigits {
+                    let str = String(currentStone.value)
+                    let middleIndex = str.index(str.startIndex, offsetBy: str.count/2)
+                    guard let leftValue = Int(str[str.startIndex..<middleIndex]), let rightValue = Int(str[middleIndex..<str.endIndex]) else { continue }
+                    currentStone.value = leftValue
+                    currentStone.next = .init(value: rightValue)
+                    stoneCount+=1
+                    currentStone.next?.next = nextStone
+                } else {
+                    currentStone.value *= 2024
                 }
+
             }
         }
         print("")
-        return stoneEvoLine.flatMap(\.self).count
+        return stoneCount
     }
 
     func part1() -> Any {
-//        evolveStones(count: 25)
-        return 0
+        evolveStones(count: 25)
     }
 
     func part2() -> Any {
