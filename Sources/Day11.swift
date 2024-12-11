@@ -1,8 +1,8 @@
 import Foundation
 class Stone: @unchecked Sendable {
     var value: Int
-    var next: Stone? = nil
-    
+    var next: Stone?
+
     init(value: Int) {
         self.value = value
     }
@@ -17,69 +17,67 @@ struct Day11: AdventDay {
 
     var data: String
 
-    var entities: [Int] {
-        [0]
+    var dict: [Int: Int] = [:]
+    var entities: [Int: Int] {
+        dict
     }
 
     init(data: String) {
-        self.data = data
-    }
-    func createStones() -> Stone {
-        let numbers = data.components(separatedBy: "\n")[0]
-            .components(separatedBy: " ")
-            .compactMap(Int.init)
-        
-        let stones: Stone = .init(value: numbers[0])
-        var currentStone = stones
-        for i in 1..<numbers.count {
-            currentStone.next = .init(value: numbers[i])
-            currentStone = currentStone.next!
-        }
-        return stones
-    }
-    func countStones(_ stones: Stone) -> Int {
-        var stoneCount = 1
-        var currentStone = stones
-        while currentStone.next != nil {
-            currentStone = currentStone.next!
-            stoneCount += 1
-        }
-        return stoneCount
-    }
-    func evolveStones(count: Int) -> Int {
-        let stone = createStones()
-        var stoneCount = countStones(stone)
-        for iteration in 0..<count {
-            print(iteration, terminator: "... ")
-            var nextStone: Stone? = stone
-            while nextStone != nil {
-                let currentStone = nextStone!
-                nextStone = currentStone.next
-                if currentStone.value == 0 {
-                    currentStone.value = 1
-                } else if currentStone.value.hasEvenDigits {
-                    let str = String(currentStone.value)
-                    let middleIndex = str.index(str.startIndex, offsetBy: str.count/2)
-                    guard let leftValue = Int(str[str.startIndex..<middleIndex]), let rightValue = Int(str[middleIndex..<str.endIndex]) else { continue }
-                    currentStone.value = leftValue
-                    currentStone.next = .init(value: rightValue)
-                    stoneCount+=1
-                    currentStone.next?.next = nextStone
-                } else {
-                    currentStone.value *= 2024
-                }
+        self.data = data.filter { $0 != "\n"}
 
-            }
+        let nums = self.data.components(separatedBy: " ").compactMap(Int.init)
+        for num in nums {
+            dict[num, default: 0]+=1
         }
-        print("")
-        return stoneCount
+
+    }
+
+    func transform(value: Int, using splitMemo: inout [Int: [Int]]) -> [Int] {
+        if value >= Int.max {
+            assert(true)
+        }
+        if let split = splitMemo[value] {
+            return split
+        }
+
+        let valueStr = String(value)
+        let middleIndex = valueStr.index(valueStr.startIndex, offsetBy: valueStr.count / 2)
+
+        splitMemo[value] = [Int(valueStr[valueStr.startIndex..<middleIndex])!,
+                            Int(valueStr[middleIndex..<valueStr.endIndex])!]
+        return splitMemo[value]!
+    }
+
+    func evolve(count: Int) -> Int {
+        var splitMemo: [Int: [Int]] = [:]
+        var stones = dict
+        for _ in 0..<count {
+            var evolvedStones: [Int: Int] = [:]
+            let keys = stones.keys
+            for key in keys {
+                let stoneCount = stones[key]!
+                if key == 0 {
+                    evolvedStones[1, default: 0]+=stoneCount
+                } else if key.hasEvenDigits {
+                    let split = transform(value: key, using: &splitMemo)
+                    evolvedStones[split[0], default: 0]+=stoneCount
+                    evolvedStones[split[1], default: 0]+=stoneCount
+                } else {
+                    let newKey = key * 2024
+                    evolvedStones[newKey, default: 0]+=stoneCount
+                }
+                stones.removeValue(forKey: key)
+            }
+            stones.merge(evolvedStones, uniquingKeysWith: +)
+        }
+        return stones.values.reduce(0, +)
     }
 
     func part1() -> Any {
-        evolveStones(count: 25)
+        evolve(count: 25)
     }
 
     func part2() -> Any {
-        evolveStones(count: 75)
+        evolve(count: 75)
     }
 }
