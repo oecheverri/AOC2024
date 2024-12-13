@@ -33,9 +33,6 @@ struct Day11: AdventDay {
     }
 
     func transform(value: Int, using splitMemo: inout [Int: [Int]]) -> [Int] {
-        if value >= Int.max {
-            assert(true)
-        }
         if let split = splitMemo[value] {
             return split
         }

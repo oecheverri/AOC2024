@@ -142,10 +142,6 @@ extension Point {
             down,
             left,
             right
-//            upLeft,
-//            downRight,
-//            upRight,
-//            downLeft
         ].filter { verticalRange.contains($0.y) && horizontalRange.contains($0.x)}
     }
 
