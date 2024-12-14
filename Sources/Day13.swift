@@ -72,7 +72,7 @@ struct Day13: AdventDay {
         machines = data.components(separatedBy: "\n\n")
             .map(Machine.init)
     }
-
+    
     func solveCost(_ machine: Machine) -> Int {
         let buttonA = machine.buttons[0]
         let buttonB = machine.buttons[1]
@@ -86,18 +86,43 @@ struct Day13: AdventDay {
         let pA = (xC * yB - xB * yC) / (xA * yB - yA * xB)
         let pB = (xC - pA * xA) / xB
 
-        if pA > 100 || pB > 100 {
+        if pA > 100.0 || pB > 100.0 || pA < 0 || pB < 0 || !pA.isWholeNumber || !pB.isWholeNumber{
             return 0
         }
-        return Int(pA * 3 + pB)
+        return Int(Int(pA) * 3 + Int(pB))
+    }
+    
+    func solveCostInflated(_ machine: Machine) -> Int {
+        let buttonA = machine.buttons[0]
+        let buttonB = machine.buttons[1]
+        let xA = buttonA.dX
+        let yA = buttonA.dY
+        let xB = buttonB.dX
+        let yB = buttonB.dY
+        let xC = machine.prize.dX + 10000000000000
+        let yC = machine.prize.dY + 10000000000000
+
+        let pA = (xC * yB - xB * yC) / (xA * yB - yA * xB)
+        let pB = (xC - pA * xA) / xB
+
+        if pA < 0 || pB < 0 || !pA.isWholeNumber || !pB.isWholeNumber{
+            return 0
+        }
+        return Int(Int(pA) * 3 + Int(pB))
     }
 
     func part1() -> Any {
-        machines.reduce(0) { $0 + solveCost($1)}
+        return machines.reduce(0) { $0 + solveCost($1)}
     }
 
     func part2() -> Any {
-        0
+        return machines.reduce(0) { $0 + solveCostInflated($1)}
+    }
+}
+
+extension Double {
+    var isWholeNumber: Bool {
+        self.truncatingRemainder(dividingBy: 1) == 0
     }
 }
 
