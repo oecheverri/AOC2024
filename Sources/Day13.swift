@@ -10,6 +10,12 @@ struct Button {
         Double(deltaY)
     }
 
+    init(_ x: Int, _ y: Int, cost: Int) {
+        self.deltaX = x
+        self.deltaY = y
+        self.cost = cost
+    }
+
     init?(_ string: String, cost: Int) {
         let components = string.split(separator: " ")
         let xStr = components[0][components[0].index(components[0].startIndex, offsetBy: 2)..<components[0].index(before: components[0].endIndex)]
@@ -31,6 +37,11 @@ extension Point {
 struct Machine {
     let prize: Point
     let buttons: [Button]
+
+    init(buttons: [Button], prize: Point) {
+        self.buttons = buttons
+        self.prize = prize
+    }
 
     init (_ string: String) {
         let components = string.components(separatedBy: "\n")
@@ -72,7 +83,7 @@ struct Day13: AdventDay {
         machines = data.components(separatedBy: "\n\n")
             .map(Machine.init)
     }
-    
+
     func solveCost(_ machine: Machine) -> Int {
         let buttonA = machine.buttons[0]
         let buttonB = machine.buttons[1]
@@ -86,12 +97,12 @@ struct Day13: AdventDay {
         let pA = (xC * yB - xB * yC) / (xA * yB - yA * xB)
         let pB = (xC - pA * xA) / xB
 
-        if pA > 100.0 || pB > 100.0 || pA < 0 || pB < 0 || !pA.isWholeNumber || !pB.isWholeNumber{
+        if pA > 100.0 || pB > 100.0 || pA < 0 || pB < 0 || !pA.isWholeNumber || !pB.isWholeNumber {
             return 0
         }
         return Int(Int(pA) * 3 + Int(pB))
     }
-    
+
     func solveCostInflated(_ machine: Machine) -> Int {
         let buttonA = machine.buttons[0]
         let buttonB = machine.buttons[1]
@@ -105,7 +116,7 @@ struct Day13: AdventDay {
         let pA = (xC * yB - xB * yC) / (xA * yB - yA * xB)
         let pB = (xC - pA * xA) / xB
 
-        if pA < 0 || pB < 0 || !pA.isWholeNumber || !pB.isWholeNumber{
+        if pA < 0 || pB < 0 || !pA.isWholeNumber || !pB.isWholeNumber {
             return 0
         }
         return Int(Int(pA) * 3 + Int(pB))

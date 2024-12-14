@@ -32,6 +32,16 @@ struct Day13Tests {
 
     @Test func testPart2() async throws {
         let challenge = Day13(data: testData)
-        #expect(String(describing: challenge.part2()) == "32000")
+        #expect(String(describing: challenge.part2()) == "875318608908")
+    }
+
+    @Test func solves() async throws {
+        let challenge = Day13()
+        let button = Button(16, 74, cost: 3)
+        let buttonb = Button(74, 74, cost: 1)
+
+        let machine = Machine(buttons: [button, buttonb], prize: .init(6368, 10138))
+        #expect(challenge.solveCost(machine) == 267)
+        #expect(challenge.solveCostInflated(machine) == 0)
     }
 }
